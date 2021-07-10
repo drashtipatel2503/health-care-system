@@ -21,6 +21,17 @@ h3 {
 }
 
 </style>
+
+
+<div class="container">
+  {% for message in get_flashed_messages() %}
+  <div class="alert alert-warning">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {{ message }}
+  </div>
+  {% endfor %}
+
+
 <body bgcolor="white">
 <nav class="navbar navbar-expand-lg navbar-light bg-light vw-100">
   <a class="navbar-brand" href="#">HealthCare System</a>
@@ -56,12 +67,18 @@ h3 {
 {% for x in l %}
 <div class="row">
   <div class="col-12 col-sm-2">
-  {{x[0]}}
+  {{eno[0]}}
   </div>
   <div class="col-12 col-sm-2">
 {{x[1]}}</div>
 <div class="col-12 col-sm-2">
-{{x[2]}}</div>
+
+  {% if x[2] == '1'%}
+  Confirmed
+
+  {% elif x[2] == '2'%}
+  Cancelled
+{% endif %}</div>
 <div class="col-12 col-sm-6">
 <a href="{{url_for('clk', ida=x[0],t=1)}}"><button class="btn btn-success">Confirm</button></a>
 <a href="{{url_for('clk', ida=x[0],t=2)}}"><button class="btn btn-danger">Cancel</button></a>

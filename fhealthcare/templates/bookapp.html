@@ -66,11 +66,12 @@ h3 {
 
   {% for j in range(l)%}
   <div class="row">
-    <div class="col-12 col-sm-9">
+    <div class="col-12 col-sm-8">
       <b>{{d[j]}}</b>
       <br>
       
-      {{ dc[j] }}
+      <h4>
+      {{ dc[j] }}</h4>
       <br>
       <b>Timings:</b>
       <br>
@@ -78,14 +79,13 @@ h3 {
 
     </div>
     <div class="col-12 col-sm">
-      <a href= "{{url_for('book', jk=j,s=p[j])}}"><button class="btn btn-success">Book</button></td></a>
+      <a href= "{{url_for('book', jk=j,s=d[j])}}"><button class="btn btn-success">Book Appointment</button></td></a>
             
     </div> 
 <hr>
 
-  </div><br>
-  <br>
-  <br>
+  </div>
+  
   <hr>
   {% endfor %}
   </div>

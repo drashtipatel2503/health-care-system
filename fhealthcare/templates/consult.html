@@ -53,7 +53,7 @@ h3 {
         <h3>Appointment:  {{a}}</h3><br><br>
 <br></div>
 <div class="row"></div>
-        <form action="{{ url_for('consultadd')}}" method='POST'>
+        <form action="{{ url_for('consultadd')}}" method='POST'  enctype = "multipart/form-data">
 
             <div class="form-outlone mb-4" >
               <label>Consult</label>
@@ -63,7 +63,8 @@ h3 {
        
             <div class="form-outlone mb-4" >     
               <label>Select supporting reports:</label>
-              <input type="file" id="myfile" name="myfile">
+              <input class="form-control" type="file" id="resumeBox" name="myfile" ><br>
+                                        
               </div>
 <button class="btn btn-primary"name="submit">Add</button>
     </div>

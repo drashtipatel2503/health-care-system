@@ -189,11 +189,12 @@ def registeruser():
     
         name=request.form["name"]
         password=request.form["password"]
-        
+        dob=request.form['dob']
         cpassword=request.form["cpassword"]
         email=request.form["email"]
         enroll=request.form["enroll"]
         num=request.form["number"]
+        gen=request.form['gen']
         session['userl']=email 
         session['enroll']=enroll
         
@@ -213,7 +214,7 @@ def registeruser():
             
         else:  
                 
-            cur.execute("Insert into user (`name`,`enroll`,`number`, `email`, `password`) values(%s, %s, %s,%s, %s)", (name,enroll,num, email, password,));
+            cur.execute("Insert into user (`name`,`enroll`,`number`, `email`, `password`,`dob`,`gen`) values(%s, %s, %s,%s, %s,%s,%s)", (name,enroll,num, email, password,dob,gen));
             p=cur.lastrowid
             session['uid']=p 
             mysql.connection.commit()
@@ -242,10 +243,12 @@ def loginuser():
         if email=='admin@admin.com' and password=='admin@admin':
             session['admin']=True
             d=[]
+            d1=[]
             for j in range(1,7):
                 d.append(" ")
+                d1.append("")
         
-            return render_template('admin.html',username="Admin",d=d)
+            return render_template('admin.html',username="Admin",d=d,d1=d1)
         if (q[5])==password:
             session['uid']=q[0]
             cur.close()
@@ -357,9 +360,14 @@ def searchdata():
     print(d,d[0])
     cur.execute("SELECT * from sdetails WHERE `id` LIKE %s",[d])
     d=cur.fetchone()
-    
+    cur.execute("SELECT * from user WHERE `enroll` LIKE %s",[eno])
+    d1=cur.fetchone()
+    print(d1)
+    if d1==None:
+        d1=['',' ','','','','','','','','','','']
 
-    return render_template('admin.html', d=d)
+
+    return render_template('admin.html', d=d,d1=d1,username="Admin")
 
 @app.route('/bookapp')
 def bookapp():
@@ -403,15 +411,15 @@ def bookapp():
                 dc.append("M.D. R K Sinha")
                 
             elif j=='Tuesday':
-                dc.append("M.D. R K Sinha")
+                dc.append("Pediatrician  R K Singh")
             elif j=='Wednesday':
                 dc.append("Ortho J R Shinde")
             elif j=='Thursday':
                 dc.append("Dentist M P Hirani")
             elif j=='Friday':
-                dc.append("M.D. R K Sinha")
+                dc.append("E.N.T R K Sinha")
             elif j=='Saturday':
-                dc.append("Ortho J R Shinde")
+                dc.append("Gynecologist J R Shinde")
             elif j=='Sunday':
                 dc.append("Emergency Services")
     print(dc,wd)
@@ -424,10 +432,9 @@ def bookapp():
 
 @app.route('/book/<jk>/<s>')
 def book(jk,s):
+    print("book",jk,s)
     print(jk, session['uid'])
     print(s)
-    p=session['p']
-    p[jk]-=1
     cur=mysql.connection.cursor()
 
     cur.execute("Insert into appointment(`sid`, `date`)values(%s,%s)",(session['uid'], jk))
@@ -436,9 +443,6 @@ def book(jk,s):
     cur.close()
         
 
-    if p[jk]==-1:
-
-        return render_template('thankyou.html',username=session['name'], msg="Slots are not available, Please got for another slot.") 
     return render_template('thankyou.html',username=session['name'], msg="Thanks for booking, You will be notified on confirmation of appointment.")
     
 @app.route('/allappointment')
@@ -456,26 +460,39 @@ def allappointment():
     cur.execute(s, d)  
     q=cur.fetchall()  
     print(q)
-    mysql.connection.commit()
-    cur.close()
     l=[]
+    o1=[]
     for s in q:
         l.append(list(s))
     print(l)
-    return render_template('allappointment.html', l=l, username="Admin")
+    print(l[1])
+    print(l[1][0])
+    for k in range(len(l)):
+        g=l[k][0]
+        print(g)
+        cur.execute("Select `enroll` from user where `id` like %s",[g])
+        o=cur.fetchone()
+        print(o,"o")
+        try:
+            o2=list(o)
+            o1.append(o2[0])
+        except:
+            o1.append("")
+    cur.close()
+    print(l)
+    eno=[1,2,3,4,5,6,7,8,9]
+    return render_template('allappointment.html', l=l, username="Admin", eno=o1)
 
 @app.route('/clk/<ida>/<t>')
 def clk(ida,t):
+    print("clicked")
     print(ida,t)
     cur=mysql.connection.cursor()
-    
     cur.execute('Update appointment set `status`= %s where id = %s',[t,ida])
-    
     mysql.connection.commit()
     cur.close()
     print("done")
     cur=mysql.connection.cursor()
-    
     cur.execute('Select * from appointment where id = %s',[ida])
     q=cur.fetchone()
     w=list(q)
@@ -539,7 +556,8 @@ def clk(ida,t):
     for s in q:
         l.append(list(s))
     print(l)
-    return render_template('allappointment.html', l=l, username="Admin")
+    eno=[1,2,3,4,5,6,7,8,9]
+    return render_template('allappointment.html', l=l, username="Admin", eno=eno)
 
 @app.route('/consult/<ida>')
 def consult(ida):
@@ -556,28 +574,21 @@ def consultadd():
     c=request.form["cons"]
     print(c)
     file=request.files['myfile']
-    print("file")
-    #print(f)
-    if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('download_file', name=filename))
 
-    f1 = file.read()
-        
-    print("read")
+    print("file")
+    f=file.read()
     a=session['aid']
     cur=mysql.connection.cursor()
 
     print("here")
     sql_insert_blob_query = """ INSERT INTO consult
                           (aid, text, report) VALUES (%s,%s,%s)"""
-    insert_blob_tuple = (a, c, f1)
+    insert_blob_tuple = (a, c, f)
     result = cur.execute(sql_insert_blob_query, insert_blob_tuple)
     mysql.connection.commit()
     cur.close()
     print("done")
-    print("Image and file inserted successfully as a BLOB into python_employee table", result)
+    flash("Added successfully")
 
     return render_template('consult.html', a=a)
 
