@@ -19,17 +19,16 @@ h3 {
   font-size: 2rem;
   color: purple
 }
+.alert-warning{
+  width:80%;
+  margin-left:10%;
+  background-color: aquamarine;
+  padding:1%
+
+}
 
 </style>
 
-
-<div class="container">
-  {% for message in get_flashed_messages() %}
-  <div class="alert alert-warning">
-      <button type="button" class="close" data-dismiss="alert">&times;</button>
-      {{ message }}
-  </div>
-  {% endfor %}
 
 
 <body bgcolor="white">
@@ -60,7 +59,14 @@ h3 {
 </nav>
 
 <div class="container">
-   
+  {% for message in get_flashed_messages() %}
+  <div class="alert alert-warning" style="background-color: aquamarine;width:98%">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {{ message }}
+  </div>
+  {% endfor %}
+
+
 <hr>
 <h3>All appointments</h3><br><br>
 <br>

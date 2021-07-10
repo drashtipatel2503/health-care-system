@@ -51,3 +51,6 @@
       {% endif %}
     {% endwith %}
 
+    {% for message in get_flashed_messages() %}
+    <p>{{ message }}</p>
+{% endfor %}

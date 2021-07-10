@@ -49,6 +49,16 @@ h3 {
 </nav>
 
 <div class="container">
+
+  
+  {% for message in get_flashed_messages() %}
+  <div class="alert alert-warning" style="background-color: aquamarine;width:98%">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {{ message }}
+  </div>
+  {% endfor %}
+
+
     <div class="row">
         <h3>Appointment:  {{a}}</h3><br><br>
 <br></div>

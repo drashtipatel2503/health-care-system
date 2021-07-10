@@ -9,7 +9,7 @@ Created on Fri Mar 26 14:43:36 2021
 import pymysql
 import hashlib
 import random
-from flask import Flask, render_template,request, redirect, session
+from flask import Flask, render_template,request, redirect, session,flash
 import base64
 import datetime
 from datetime import date
@@ -507,7 +507,7 @@ def clk(ida,t):
     cur.close()
 
     print("done")
-    
+    flash("Student is notified by mail regarding appointment")
     if t=='1':
         s='Confirmed'
         '''msg = Message('HealthCare System', sender = 'thisisforpod@gmail.com', recipients = [a])
