@@ -30,7 +30,7 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 mysql=MySQL()
 app=Flask(__name__)
 app.config['MySQL_USER']='root'
-app.config['MYSQL_PASSWORD']='drashti'
+app.config['MYSQL_PASSWORD']=''
 app.config['MYSQL_DB']='health'
 app.config['MYSQL_HOST']='localhost'
 
@@ -49,7 +49,7 @@ def convertToBinaryData(filename):
 '''app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USERNAME'] = 'thisisforpod@gmail.com'
-app.config['MAIL_PASSWORD'] ='Thisis4pod'
+app.config['MAIL_PASSWORD'] =' '
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 mail = Mail(app)'''
