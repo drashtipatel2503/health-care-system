@@ -47,18 +47,17 @@ h3 {
   </div>
   <h3 class="mr-1">{{ username }}</h3>
 </nav>
-
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <script>
+      var messages = {{ messages | safe }};
+      for (var i=0; i<messages.length; i++) {
+        alert(messages[i]);
+      }
+    </script>
+  {% endif %}
+{% endwith %}
 <div class="container">
-
-  
-  {% for message in get_flashed_messages() %}
-  <div class="alert alert-warning" style="background-color: aquamarine;width:98%">
-      <button type="button" class="close" data-dismiss="alert">&times;</button>
-      {{ message }}
-  </div>
-  {% endfor %}
-
-
     <div class="row">
         <h3>Appointment:  {{a}}</h3><br><br>
 <br></div>

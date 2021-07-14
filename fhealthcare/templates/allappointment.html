@@ -29,6 +29,16 @@ h3 {
 
 </style>
 
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <script>
+      var messages = {{ messages | safe }};
+      for (var i=0; i<messages.length; i++) {
+        alert(messages[i]);
+      }
+    </script>
+  {% endif %}
+{% endwith %}
 
 
 <body bgcolor="white">
@@ -59,12 +69,7 @@ h3 {
 </nav>
 
 <div class="container">
-  {% for message in get_flashed_messages() %}
-  <div class="alert alert-warning" style="background-color: aquamarine;width:98%">
-      <button type="button" class="close" data-dismiss="alert">&times;</button>
-      {{ message }}
-  </div>
-  {% endfor %}
+  
 
 
 <hr>
@@ -76,14 +81,18 @@ h3 {
   {{eno[0]}}
   </div>
   <div class="col-12 col-sm-2">
-{{x[1]}}</div>
+{{x[2]}}</div>
 <div class="col-12 col-sm-2">
 
-  {% if x[2] == '1'%}
-  Confirmed
+  {% if x[3] == 1%}
 
-  {% elif x[2] == '2'%}
-  Cancelled
+  <p>Confirmed</p>
+
+  {% elif x[3] == 2%}
+<p>Cancelled</p>
+
+{% elif x[3] == 3 %}
+<p>Conducted </p>
 {% endif %}</div>
 <div class="col-12 col-sm-6">
 <a href="{{url_for('clk', ida=x[0],t=1)}}"><button class="btn btn-success">Confirm</button></a>

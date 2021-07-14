@@ -14,7 +14,6 @@ import base64
 import datetime
 from datetime import date
 import smtplib
-#from flask_mail import Mail,Message
 from werkzeug.utils import format_string
 from flask_mysqldb import MySQL
 from datetime import date
@@ -39,22 +38,6 @@ app.secret_key=hashlib.sha1('abcdef'.encode()).hexdigest()
 msg=""
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-
-def convertToBinaryData(filename):
-    # Convert digital data to binary format
-    with open(filename, 'rb') as file:
-        binaryData = file.read()
-    return binaryData
-
-'''app.config['MAIL_SERVER']='smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'thisisforpod@gmail.com'
-app.config['MAIL_PASSWORD'] =' '
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
-mail = Mail(app)'''
-
-
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -77,7 +60,7 @@ def firstpage():
             d=q[4]
             e=q[5]
         except:
-            bg,h,w,a,d,e="","","","","",""
+            bg,h,w,a,d,e,dob,g="","","","","","","",""
         
         try:
             cur=mysql.connection.cursor()
@@ -106,14 +89,13 @@ def firstpage():
 
 
 @app.route('/register')
-def register():    
-        return render_template('register.html')
-
+def register(): 
+        msg=''   
+        return render_template('register.html',msg=msg)
 
 @app.route('/login')
 def login():    
         return render_template('login.html')
-
 
 @app.route('/forgetpass')
 def forgetpass():    
@@ -121,20 +103,14 @@ def forgetpass():
 
 @app.route('/forgetpassemailuser', methods=['POST'])
 def forgetpassemailuser():  
-        
         em=request.form['email']
         session['email']=em
         n = random.randint(1111,9999)
         session['secretkey']=n
         print(n)
-        
-        '''msg = Message('HealthCare System', sender = 'thisisforpod@gmail.com', recipients = [a])
-        msg.body = "Yor secret key is "+ n
-        mail.send(msg)'''
         s1 = smtplib.SMTP('smtp.gmail.com', 587)
-
         s1.starttls()
-        s1.login("thisisforpod", "Thisis4pod")
+        s1.login("thisisforpod", " ")
         message =  "Your secret key is "+str(n)
         s1.sendmail("thisisforpod@gmail.com", em , message)
         s1.quit()
@@ -144,7 +120,6 @@ def forgetpassemailuser():
 
 @app.route('/forgetpass1', methods=['POST'])
 def forgetpass1():  
-        
         em=request.form['email']
         session['email']=em
         n = random.randit(1111,9999)
@@ -154,9 +129,8 @@ def forgetpass1():
         msg.body = "Yor secret key is "+ n
         mail.send(msg)'''
         s1 = smtplib.SMTP('smtp.gmail.com', 587)
-
         s1.starttls()
-        s1.login("thisisforpod", "Thisis4pod")
+        s1.login("thisisforpod", " ")
         message =  "Your secret key is"+ n
         s1.sendmail("thisisforpod@gmail.com", em , message)
         s1.quit()
@@ -173,9 +147,7 @@ def forgetpassuser():
                     msg="Invalid secret key"
                     return render_template("forgetpass.html", msg=msg)
                 password=request.form["password"]
-
                 cur=mysql.connection.cursor()
-        
                 cur.execute("Update `user` SET `password` = %s where `email` = %s",(password,session['email'])); 
                 mysql.connection.commit()
                 cur.close()
@@ -186,25 +158,28 @@ def forgetpassuser():
 
 @app.route('/registeruser', methods=["POST"])
 def registeruser():
-    
+        print("here")
         name=request.form["name"]
         password=request.form["password"]
-        dob=request.form['dob']
+        dob=datetime.datetime.strptime(request.form["dob"], '%Y-%m-%d')
         cpassword=request.form["cpassword"]
         email=request.form["email"]
         enroll=request.form["enroll"]
         num=request.form["number"]
-        gen=request.form['gen']
+        gen=request.form["gen"]
         session['userl']=email 
         session['enroll']=enroll
         
         session['name']=name 
+        print("c2")
+    
         if password !=cpassword:
-           return  render_template('register.html', msg="Passwords doesnot match")
+            print("psw error")
+            return  render_template('register.html', msg="Password does not match")
 
         cur=mysql.connection.cursor()
         
-        
+
         cur.execute("SELECT * from user WHERE `email` LIKE %s",[email])
         q=cur.fetchall()
         print(len(q))
@@ -274,21 +249,7 @@ def adddetailuser():
             num=session['uid']
             print(num,"num")
             cur=mysql.connection.cursor()
-            '''
-            
-            cur.execute("SELECT * from sdetails WHERE `id` LIKE %s",[num])
-            q=cur.fetchall()
-            
-            if len(q)>0:
-                cur.execute("Update sdetails SET `id` = %s, `height`=%s, `weight`=%s, `bloodgroup`=%s, `allergy`=%s, `disease`=%s, `emergency`=%s  where id=%s",(num,height, weight,bg,allergy, major,contact, num)); 
-                mysql.connection.commit()
-                cur.close()
-                print("updated")
-                session['added']=True
-                return redirect('firstpage')
-                
-            else: ''' 
-                
+                           
             cur.execute("Insert into sdetails (`id`,`height`,`weight`, `bloodgroup`, `allergy`, `disease`, `emergency`) values(%s, %s, %s,%s, %s, %s, %s)", (num,height, weight,bg,allergy, major,contact));
             p=cur.lastrowid
             session['did']=p 
@@ -301,7 +262,6 @@ def adddetailuser():
     
 @app.route('/adddetails')
 def adddetails():
-        
         return render_template('adddetails.html')
 
 
@@ -330,8 +290,6 @@ def editdetailuser():
 def editdetails():
     s=session['uid']
     cur=mysql.connection.cursor()
-        
-        
     cur.execute("SELECT * from sdetails WHERE `id` LIKE %s",[s])
     d=cur.fetchone()
     print(d)
@@ -341,14 +299,12 @@ def editdetails():
 def logout():
     print("logout")
     session.clear()
-    
     print("logout")
     return render_template('login.html')
 
 @app.route('/thanks')
 def thanks():
     return render_template('thankyou.html')
-
 
 @app.route('/searchdata', methods=['POST'])
 def searchdata():
@@ -436,26 +392,23 @@ def book(jk,s):
     print(jk, session['uid'])
     print(s)
     cur=mysql.connection.cursor()
-
-    cur.execute("Insert into appointment(`sid`, `date`)values(%s,%s)",(session['uid'], jk))
-        
+    cur.execute("Insert into appointment(`sid`, `date`)values(%s,%s)",(session['uid'], s))
     mysql.connection.commit()
     cur.close()
-        
-
     return render_template('thankyou.html',username=session['name'], msg="Thanks for booking, You will be notified on confirmation of appointment.")
     
 @app.route('/allappointment')
 def allappointment():
     d=[]
-    for i in range(-7,7):
-        dt=(datetime.datetime.now()+ datetime.timedelta(days=i)).strftime('%Y-%m-%d')
+    for i in range(-7,10):
+        dt=(datetime.datetime.now()+ datetime.timedelta(days=i)).strftime('%d-%m-%Y')
         d.append(dt)
     print(dt)
+    print("dt")
     
     
     cur=mysql.connection.cursor()
-    s='Select id, date, status from appointment where date in (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+    s='Select id,sid, date, status from appointment where date in (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
     print(s)
     cur.execute(s, d)  
     q=cur.fetchall()  
@@ -465,10 +418,10 @@ def allappointment():
     for s in q:
         l.append(list(s))
     print(l)
-    print(l[1])
-    print(l[1][0])
+    print("l")
     for k in range(len(l)):
-        g=l[k][0]
+        print(l[k][1])
+        g=l[k][1]
         print(g)
         cur.execute("Select `enroll` from user where `id` like %s",[g])
         o=cur.fetchone()
@@ -485,7 +438,6 @@ def allappointment():
 
 @app.route('/clk/<ida>/<t>')
 def clk(ida,t):
-    print("clicked")
     print(ida,t)
     cur=mysql.connection.cursor()
     cur.execute('Update appointment set `status`= %s where id = %s',[t,ida])
@@ -497,6 +449,7 @@ def clk(ida,t):
     q=cur.fetchone()
     w=list(q)
     print(w[1])
+
     cur.execute('Select email from user where id = %s',[w[1]])
     h=cur.fetchone()
     print(h,'h')
@@ -516,7 +469,7 @@ def clk(ida,t):
         s1 = smtplib.SMTP('smtp.gmail.com', 587)
 
         s1.starttls()
-        s1.login("thisisforpod", "Thisis4pod")
+        s1.login("thisisforpod", " ")
         message =  "Your appointment is scheduled on "+ w[2]+ " is "+ s
         s1.sendmail("thisisforpod@gmail.com", a , message)
         s1.quit()
@@ -531,33 +484,46 @@ def clk(ida,t):
         s1 = smtplib.SMTP('smtp.gmail.com', 587)
 
         s1.starttls()
-        s1.login("thisisforpod", "Thisis4pod")
+        s1.login("thisisforpod", " ")
         message =  "Your appointment is scheduled on "+ w[2]+ " is "+ s
         s1.sendmail("thisisforpod@gmail.com", a , message)
         s1.quit()
 
         print("Messaged")
     d=[]
-    for i in range(-7,7):
-        dt=(datetime.datetime.now()+ datetime.timedelta(days=i)).strftime('%Y-%m-%d')
+    for i in range(-7,10):
+        dt=(datetime.datetime.now()+ datetime.timedelta(days=i)).strftime('%d-%m-%Y')
         d.append(dt)
     print(dt)
     
-    
     cur=mysql.connection.cursor()
-    s='Select id, date, status from appointment where date in (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+    s='Select id,sid, date, status from appointment where date in (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
     print(s)
     cur.execute(s, d)  
     q=cur.fetchall()  
     print(q)
-    mysql.connection.commit()
-    cur.close()
     l=[]
+    o1=[]
     for s in q:
         l.append(list(s))
     print(l)
+    print("l")
+    for k in range(len(l)):
+        print(l[k][1])
+        g=l[k][1]
+        print(g)
+        cur.execute("Select `enroll` from user where `id` like %s",[g])
+        o=cur.fetchone()
+        print(o,"o")
+        try:
+            o2=list(o)
+            o1.append(o2[0])
+        except:
+            o1.append("")
+    cur.close()
+    print(l)
     eno=[1,2,3,4,5,6,7,8,9]
-    return render_template('allappointment.html', l=l, username="Admin", eno=eno)
+    return render_template('allappointment.html', l=l, username="Admin", eno=o1)
 
 @app.route('/consult/<ida>')
 def consult(ida):
@@ -579,7 +545,6 @@ def consultadd():
     f=file.read()
     a=session['aid']
     cur=mysql.connection.cursor()
-
     print("here")
     sql_insert_blob_query = """ INSERT INTO consult
                           (aid, text, report) VALUES (%s,%s,%s)"""
